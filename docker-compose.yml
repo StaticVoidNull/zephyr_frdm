@@ -1,0 +1,67 @@
+services:
+  init:
+    image: zephyr-image:latest
+    build:
+      context: .
+      args:
+        - USERNAME=${USERNAME}
+        - UID=${UID}
+        - GID=${GID}
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command:
+      - bash
+      - -c
+      - |
+        rm -rf build
+        mkdir build
+        echo "Environment was initialized"
+        ls -al
+
+  # build:
+  #   image: template-image:latest
+  #   volumes:
+  #     - .:/workspace
+  #   working_dir: /workspace
+  #   command:
+  #     - bash
+  #     - -c
+  #     - |
+  #       echo "Hello from the template" > build/test.txt
+  #       cat build/test.txt
+
+  # clean:
+  #   image: template-image:latest
+  #   volumes:
+  #     - .:/workspace
+  #   working_dir: /workspace
+  #   command:
+  #     - bash
+  #     - -c
+  #     - |
+  #       rm -f build/test.txt
+
+  # dev:
+  #   image: template-image:latest
+  #   volumes:
+  #     - .:/workspace
+  #   working_dir: /workspace
+  #   command:
+  #     - bash
+
+  # debug:
+  #   image: image-debug:latest
+  #   build:
+  #     context: .
+  #     dockerfile: docker/Dockerfile.debug
+  #   environment:
+  #     - HOST_PROJECT_PATH=${PWD}
+  #   privileged: true
+  #   network_mode: host
+  #   devices:
+  #     - /dev/bus/usb:/dev/bus/usb
+  #   volumes:
+  #     - ..:/workspace
+  #   working_dir: /workspace
+  #   command: sleep infinity

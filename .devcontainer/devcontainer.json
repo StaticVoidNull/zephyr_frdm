@@ -1,0 +1,14 @@
+{
+    "name": "Debug Environment",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "debug",
+    "workspaceFolder": "/workspace",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools"    // Standard C/C++ support
+            ]
+        }
+    }
+}

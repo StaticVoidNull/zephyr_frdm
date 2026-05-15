@@ -1,0 +1,41 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/app.elf",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "targetArchitecture": "x64",
+            "setupCommands": [
+                {
+                    "text": "set tcp connect-timeout 30"
+                },
+                {
+                    "text": "set substitute-path ${env:HOST_PROJECT_PATH} ${workspaceFolder}"
+                },
+            ],
+            "debugServerPath": "path/to/gdbserver",
+            "debugServerArgs": ":40000 -c config.cfg",
+            "miDebuggerPath": "path/to/gdb",
+            "miDebuggerServerAddress": ":40000",
+            "postRemoteConnectCommands": [
+                {
+                    "text": "load"
+                },
+                {
+                    "text": "tbreak main"
+                }
+            ]
+        }
+    ]
+}
