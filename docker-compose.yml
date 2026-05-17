@@ -1,67 +1,48 @@
 services:
   init:
-    image: zephyr-image:latest
+    image: zephyr-build-image:latest
     build:
       context: .
-      args:
-        - USERNAME=${USERNAME}
-        - UID=${UID}
-        - GID=${GID}
+    user: "1000:1000"
     volumes:
       - .:/workspace
     working_dir: /workspace
-    command:
-      - bash
-      - -c
-      - |
-        rm -rf build
-        mkdir build
-        echo "Environment was initialized"
-        ls -al
+    environment:
+      - ZEPHYR_INSTALL_DIR=/workspace/zephyr_env
+      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyr_env/zephyr_sdk
+    command: >
+      bash -c "
+        rm -rf zephyr_env
 
-  # build:
-  #   image: template-image:latest
-  #   volumes:
-  #     - .:/workspace
-  #   working_dir: /workspace
-  #   command:
-  #     - bash
-  #     - -c
-  #     - |
-  #       echo "Hello from the template" > build/test.txt
-  #       cat build/test.txt
+        python3 -m venv $$ZEPHYR_INSTALL_DIR/.venv
+        source $$ZEPHYR_INSTALL_DIR/.venv/bin/activate
 
-  # clean:
-  #   image: template-image:latest
-  #   volumes:
-  #     - .:/workspace
-  #   working_dir: /workspace
-  #   command:
-  #     - bash
-  #     - -c
-  #     - |
-  #       rm -f build/test.txt
+        pip install west
+        west init $$ZEPHYR_INSTALL_DIR
+        cd $$ZEPHYR_INSTALL_DIR
+        west update
+        west packages pip --install
 
-  # dev:
-  #   image: template-image:latest
-  #   volumes:
-  #     - .:/workspace
-  #   working_dir: /workspace
-  #   command:
-  #     - bash
+        west sdk install --install-base $$ZEPHYR_SDK_INSTALL_DIR -t arm-zephyr-eabi
+      "
 
-  # debug:
-  #   image: image-debug:latest
-  #   build:
-  #     context: .
-  #     dockerfile: docker/Dockerfile.debug
-  #   environment:
-  #     - HOST_PROJECT_PATH=${PWD}
-  #   privileged: true
-  #   network_mode: host
-  #   devices:
-  #     - /dev/bus/usb:/dev/bus/usb
-  #   volumes:
-  #     - ..:/workspace
-  #   working_dir: /workspace
-  #   command: sleep infinity
+  interactive:
+    image: zephyr-build-image:latest
+    user: "1000:1000"
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    environment:
+      - ZEPHYR_INSTALL_DIR=/workspace/zephyr_env
+      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyr_env/zephyr_sdk
+    command: bash -c "source $$ZEPHYR_INSTALL_DIR/.venv/bin/activate && exec bash"
+
+  interactive_root:
+    image: zephyr-build-image:latest
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    environment:
+      - ZEPHYR_INSTALL_DIR=/workspace/zephyr_env
+      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyr_env/zephyr_sdk
+    command: bash -c "source $$ZEPHYR_INSTALL_DIR/.venv/bin/activate && exec bash"

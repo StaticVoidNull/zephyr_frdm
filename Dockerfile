@@ -1,40 +1,26 @@
 # Base image
-FROM fedora:latest
-
-# Arguments to pass host UID and GID at build time
-ARG USERNAME=developer
-ARG UID=1000
-ARG GID=1000
+FROM ubuntu:24.04
 
 # Install dependencies
-RUN dnf -y group install \
-        development-tools \
-        c-development \
-    && dnf -y install \
+RUN apt-get update && apt install --no-install-recommends -y \
+        git \
         cmake \
         ninja-build \
         gperf \
+        ccache \
         dfu-util \
-        dtc \
+        device-tree-compiler \
         wget \
-        which \
-        python3-pip \
-        python3-tkinter \
-        xz \
+        python3-dev \
+        python3-venv \
+        python3-tk \
+        xz-utils \
         file \
-        python3-devel \
-        SDL2-devel
-
-# Install sudo and create the user/group with matching UID/GID
-RUN dnf -y install \
+        make \
+        gcc \
+        gcc-multilib \
+        g++-multilib \
+        libsdl2-dev \
+        libmagic1 \
         sudo \
-    && groupadd --gid ${GID} ${USERNAME} \
-    && useradd --uid ${UID} --gid ${GID} -m ${USERNAME} \
-    && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
-    && chmod 0440 /etc/sudoers.d/${USERNAME}
-
-# Switch to the new user
-USER ${USERNAME}
-
-# Default working directory
-WORKDIR /workspace
+    && rm -rf /var/lib/apt/lists/*
