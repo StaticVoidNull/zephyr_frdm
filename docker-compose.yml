@@ -1,15 +1,32 @@
+x-service-zephyr-base: &zephyr-base
+  image: zephyr-build-image:latest
+  build:
+    context: .
+  user: "1000:1000"
+  volumes:
+    - .:/workspace
+  working_dir: /workspace
+  environment:
+    - BOARD=frdm_mcxa156
+    - PROJECT_DIR=/workspace/project
+    - ZEPHYRPROJECT_DIR=/workspace/zephyrproject
+    - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyrproject/zephyr_sdk
+    - ZEPHYR_BASE=/workspace/zephyrproject/zephyr
+
+x-service-zephyr-debug: &zephyr-debug
+  <<: *zephyr-base
+  user: root
+  privileged: true
+  devices:
+    - /dev/bus/usb:/dev/bus/usb
+    - /dev/ttyACM0:/dev/ttyACM0
+  ports:
+    - "3333:3333"
+    - "8888:8888"
+
 services:
   init:
-    image: zephyr-build-image:latest
-    build:
-      context: .
-    user: "1000:1000"
-    volumes:
-      - .:/workspace
-    working_dir: /workspace
-    environment:
-      - ZEPHYRPROJECT_DIR=/workspace/zephyrproject
-      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyrproject/zephyr_sdk
+    <<: *zephyr-base
     command: >
       bash -c "
         rm -rf $$ZEPHYRPROJECT_DIR
@@ -26,32 +43,57 @@ services:
         west sdk install --install-base $$ZEPHYR_SDK_INSTALL_DIR -t arm-zephyr-eabi
       "
 
+  build:
+    <<: *zephyr-base
+    command: >
+      bash -c "
+          source $$ZEPHYRPROJECT_DIR/.venv/bin/activate
+          west build -b $$BOARD $$PROJECT_DIR
+        "
+
+  build_debug:
+    <<: *zephyr-base
+    command: >
+      bash -c "
+          source $$ZEPHYRPROJECT_DIR/.venv/bin/activate
+          west build -b $$BOARD $$PROJECT_DIR -DCMAKE_BUILD_TYPE=Debug
+        "
+  clean:
+    <<: *zephyr-base
+    command: >
+      bash -c "
+          source $$ZEPHYRPROJECT_DIR/.venv/bin/activate
+          rm -rf build
+        "
+
+  flash:
+    <<: *zephyr-debug
+    command: >
+      bash -c "
+          source $$ZEPHYRPROJECT_DIR/.venv/bin/activate
+          west flash
+        "
+
+  gdb_server:
+    <<: *zephyr-debug
+    command: >
+      bash -c "
+          source $$ZEPHYRPROJECT_DIR/.venv/bin/activate
+          west debugserver
+        "
+
   interactive:
-    image: zephyr-build-image:latest
-    build:
-      context: .
-    user: "1000:1000"
-    volumes:
-      - .:/workspace
-    working_dir: /workspace
-    environment:
-      - ZEPHYRPROJECT_DIR=/workspace/zephyrproject
-      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyrproject/zephyr_sdk
-      - ZEPHYR_BASE=/workspace/zephyrproject/zephyr
-    command: bash -c "source $$ZEPHYRPROJECT_DIR/.venv/bin/activate && exec bash"
+    <<: *zephyr-base
+    command: >
+      bash -c "
+          source $$ZEPHYRPROJECT_DIR/.venv/bin/activate
+          exec bash
+        "
 
   interactive_root:
-    image: zephyr-build-image:latest
-    build:
-      context: .
-    privileged: true
-    devices:
-      - /dev/bus/usb:/dev/bus/usb
-    volumes:
-      - .:/workspace
-    working_dir: /workspace
-    environment:
-      - ZEPHYRPROJECT_DIR=/workspace/zephyrproject
-      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyrproject/zephyr_sdk
-      - ZEPHYR_BASE=/workspace/zephyrproject/zephyr
-    command: bash -c "source $$ZEPHYRPROJECT_DIR/.venv/bin/activate && exec bash"
+    <<: *zephyr-debug
+    command: >
+      bash -c "
+          source $$ZEPHYRPROJECT_DIR/.venv/bin/activate
+          exec bash
+        "
