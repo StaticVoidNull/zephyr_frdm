@@ -8,18 +8,18 @@ services:
       - .:/workspace
     working_dir: /workspace
     environment:
-      - ZEPHYR_INSTALL_DIR=/workspace/zephyr_env
-      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyr_env/zephyr_sdk
+      - ZEPHYRPROJECT_DIR=/workspace/zephyrproject
+      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyrproject/zephyr_sdk
     command: >
       bash -c "
-        rm -rf zephyr_env
+        rm -rf $$ZEPHYRPROJECT_DIR
 
-        python3 -m venv $$ZEPHYR_INSTALL_DIR/.venv
-        source $$ZEPHYR_INSTALL_DIR/.venv/bin/activate
+        python3 -m venv $$ZEPHYRPROJECT_DIR/.venv
+        source $$ZEPHYRPROJECT_DIR/.venv/bin/activate
 
         pip install west
-        west init $$ZEPHYR_INSTALL_DIR
-        cd $$ZEPHYR_INSTALL_DIR
+        west init $$ZEPHYRPROJECT_DIR
+        cd $$ZEPHYRPROJECT_DIR
         west update
         west packages pip --install
 
@@ -28,21 +28,30 @@ services:
 
   interactive:
     image: zephyr-build-image:latest
+    build:
+      context: .
     user: "1000:1000"
     volumes:
       - .:/workspace
     working_dir: /workspace
     environment:
-      - ZEPHYR_INSTALL_DIR=/workspace/zephyr_env
-      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyr_env/zephyr_sdk
-    command: bash -c "source $$ZEPHYR_INSTALL_DIR/.venv/bin/activate && exec bash"
+      - ZEPHYRPROJECT_DIR=/workspace/zephyrproject
+      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyrproject/zephyr_sdk
+      - ZEPHYR_BASE=/workspace/zephyrproject/zephyr
+    command: bash -c "source $$ZEPHYRPROJECT_DIR/.venv/bin/activate && exec bash"
 
   interactive_root:
     image: zephyr-build-image:latest
+    build:
+      context: .
+    privileged: true
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
     volumes:
       - .:/workspace
     working_dir: /workspace
     environment:
-      - ZEPHYR_INSTALL_DIR=/workspace/zephyr_env
-      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyr_env/zephyr_sdk
-    command: bash -c "source $$ZEPHYR_INSTALL_DIR/.venv/bin/activate && exec bash"
+      - ZEPHYRPROJECT_DIR=/workspace/zephyrproject
+      - ZEPHYR_SDK_INSTALL_DIR=/workspace/zephyrproject/zephyr_sdk
+      - ZEPHYR_BASE=/workspace/zephyrproject/zephyr
+    command: bash -c "source $$ZEPHYRPROJECT_DIR/.venv/bin/activate && exec bash"
