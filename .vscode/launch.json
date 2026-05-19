@@ -8,26 +8,25 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/app.elf",
+            "program": "${workspaceFolder}/build/zephyr/zephyr.elf",
             "args": [],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "targetArchitecture": "x64",
+            "targetArchitecture": "arm",
+            "miDebuggerServerAddress": ":3333",
             "setupCommands": [
                 {
-                    "text": "set tcp connect-timeout 30"
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
                 },
                 {
-                    "text": "set substitute-path ${env:HOST_PROJECT_PATH} ${workspaceFolder}"
-                },
+                    "text": "set substitute-path /workspace ${workspaceFolder} "
+                }
             ],
-            "debugServerPath": "path/to/gdbserver",
-            "debugServerArgs": ":40000 -c config.cfg",
-            "miDebuggerPath": "path/to/gdb",
-            "miDebuggerServerAddress": ":40000",
             "postRemoteConnectCommands": [
                 {
                     "text": "load"
