@@ -16,13 +16,10 @@ x-service-zephyr-base: &zephyr-base
 x-service-zephyr-debug: &zephyr-debug
   <<: *zephyr-base
   user: root
-  privileged: true
   devices:
     - /dev/bus/usb:/dev/bus/usb
     - /dev/ttyACM0:/dev/ttyACM0
-  ports:
-    - "3333:3333"
-    - "8888:8888"
+  network_mode: host
 
 services:
   init:
