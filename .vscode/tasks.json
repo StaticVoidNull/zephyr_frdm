@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "docker compose run --rm build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "docker compose run --rm clean",
+            "problemMatcher": []
+        },
+        {
+            "label": "Flash",
+            "type": "shell",
+            "command": "docker compose run --rm flash",
+            "problemMatcher": []
+        },
+        {
+            "label": "Start GDB Server",
+            "type": "shell",
+            "command": "docker compose run --rm gdb_server",
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "."
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "listening on port",
+                    "endsPattern": "listening on port"
+                }
+            }
+        }
+    ]
+}

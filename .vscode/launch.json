@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/zephyr/zephyr.elf",
             "args": [],
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
@@ -29,12 +29,16 @@
             ],
             "postRemoteConnectCommands": [
                 {
+                    "text": "monitor reset halt"
+                },
+                {
                     "text": "load"
                 },
                 {
                     "text": "tbreak main"
-                }
-            ]
+                },
+            ],
+            "preLaunchTask": "Start GDB Server"
         }
     ]
 }

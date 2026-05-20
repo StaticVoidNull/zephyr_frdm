@@ -48,13 +48,6 @@ services:
           west build -b $$BOARD $$PROJECT_DIR
         "
 
-  build_debug:
-    <<: *zephyr-base
-    command: >
-      bash -c "
-          source $$ZEPHYRPROJECT_DIR/.venv/bin/activate
-          west build -b $$BOARD $$PROJECT_DIR -DCMAKE_BUILD_TYPE=Debug
-        "
   clean:
     <<: *zephyr-base
     command: >
